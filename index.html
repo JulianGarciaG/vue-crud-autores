@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="estilos.css">
+<title>App tareas</title>
+
+<!-- Vue 3 CDN -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+<!-- Bootstrap CSS CDN -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Incluir los estilos de Toastr -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+
+
+</head>
+<body>
+    <!-- el my-4 funciona para darle margen en el eje y de 4 -->
+    <div id="app" class="container my-4">
+        <h1 class="text-center">Registro autores</h1>
+
+        <table class="table table-striped mt-4">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Ciudad Natal</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Si los autores están vacíos, muestra el shimmer -->
+                <tr v-if="autores.length === 0">
+                    <td colspan="5">
+                        <div class="shimmer-table">
+                            <div class="shimmer-row">
+                                <div class="shimmer-cell shimmer"></div>
+                                <div class="shimmer-cell shimmer"></div>
+                                <div class="shimmer-cell shimmer"></div>
+                                <div class="shimmer-cell shimmer"></div>
+                                <div class="shimmer-cell shimmer"></div>
+                            </div>
+                            <div class="shimmer-row">
+                                <div class="shimmer-cell shimmer"></div>
+                                <div class="shimmer-cell shimmer"></div>
+                                <div class="shimmer-cell shimmer"></div>
+                                <div class="shimmer-cell shimmer"></div>
+                                <div class="shimmer-cell shimmer"></div>
+                            </div>
+                            <div class="shimmer-row">
+                                <div class="shimmer-cell shimmer"></div>
+                                <div class="shimmer-cell shimmer"></div>
+                                <div class="shimmer-cell shimmer"></div>
+                                <div class="shimmer-cell shimmer"></div>
+                                <div class="shimmer-cell shimmer"></div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
+
+                <!-- aqui le estamos diciendo que recorra la lista autores y guarde cada autor -->
+                <tr v-for="autor in this.autores">
+                    <td>{{autor.id}}</td>
+                    <td>{{autor.nombre}}</td>
+                    <td>{{autor.apellido}}</td>
+                    <td>{{autor.ciudad_natal}}</td>
+                    <td>
+                        <button class="btn btn-danger" @click="eliminarAutor(autor.id)">Eliminar</button>
+                    </td>
+
+
+                </tr>
+            </tbody>
+
+        </table>
+    </div>
+
+    <script>
+        const {createApp} = Vue;
+        createApp({
+            data(){
+                return{
+                    nuevoAutor:{nombre: "Gabriel", apellido: "Garcia Marquez", ciudad_natal: "Bogota"},
+                    autores: [],
+
+                };
+            },
+            methods:{
+                async obtenerAutores() {
+                    try{
+                        // aqui esta diciendo que va obtener(fetch) lo que le manden de la url y espere
+                        const respuesta = await fetch("http://localhost/backAutores/public/api/v1/tbl_autores");
+                        this.autores = await respuesta.json();
+                        console.log(this.autores)
+
+                    }catch(err){
+                        console.error(err);
+                    }
+                },
+                async eliminarAutor(idAutor) {
+                    try{
+                        // aqui esta diciendo que va obtener(fetch) lo que le manden de la url y espere
+                        await fetch("http://localhost/backAutores/public/api/v1/tbl_autores/"+idAutor, {method:"DELETE"});
+                        this.autores = this.autores.filter(autor => autor.id !== idAutor)
+                        toastr.succes("Autor eliminado")
+
+                    }catch(err){
+                        console.error(err);
+                        toast.succes("Autor no se pudo eliminar")
+                    }
+                }
+
+            },
+            mounted(){
+                this.obtenerAutores();
+                
+
+            }
+
+        }).mount("#app");
+
+    </script>
+
+    <!-- Incluir jQuery (Toastr depende de jQuery) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Incluir el script de Toastr -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+</body>
+</html>
